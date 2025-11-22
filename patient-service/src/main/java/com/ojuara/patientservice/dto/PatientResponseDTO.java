@@ -16,6 +16,4 @@ public class PatientResponseDTO {
     private String dateOfBirth;
     private String registeredDate;
 
-
-
 }
