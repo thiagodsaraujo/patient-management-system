@@ -1,11 +1,12 @@
 package com.ojuara.patientservice.controller;
 
+import com.ojuara.patientservice.dto.PatientRequestDTO;
 import com.ojuara.patientservice.dto.PatientResponseDTO;
+import com.ojuara.patientservice.mapper.PatientMapper;
 import com.ojuara.patientservice.service.PatientService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,6 +27,19 @@ public class PatientController {
 
         return ResponseEntity.ok().body(patients);
 
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<PatientResponseDTO> createPatient(@Valid @RequestBody PatientRequestDTO patientRequestDTO) {
+
+        PatientResponseDTO createdPatient = patientService.createPatient(patientRequestDTO);
+
+
+
+
+
+
+        return ResponseEntity.ok().body(createdPatient);
     }
 
 }

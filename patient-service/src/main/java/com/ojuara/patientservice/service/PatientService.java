@@ -1,9 +1,11 @@
 package com.ojuara.patientservice.service;
 
+import com.ojuara.patientservice.dto.PatientRequestDTO;
 import com.ojuara.patientservice.dto.PatientResponseDTO;
 import com.ojuara.patientservice.mapper.PatientMapper;
 import com.ojuara.patientservice.model.Patient;
 import com.ojuara.patientservice.repository.PatientRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,5 +28,17 @@ public class PatientService {
         return patients.stream().map(PatientMapper::toDTO).toList();
 
     }
+
+    public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO) {
+        Patient newPatient = patientRepository.save(PatientMapper.toEntity(patientRequestDTO));
+        return PatientMapper.toDTO(newPatient);
+
+
+
+    }
+
+
+
+
 
 }

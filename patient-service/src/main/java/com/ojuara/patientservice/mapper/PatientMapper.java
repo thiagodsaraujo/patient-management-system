@@ -1,5 +1,6 @@
 package com.ojuara.patientservice.mapper;
 
+import com.ojuara.patientservice.dto.PatientRequestDTO;
 import com.ojuara.patientservice.dto.PatientResponseDTO;
 import com.ojuara.patientservice.model.Patient;
 
@@ -18,6 +19,16 @@ public class PatientMapper {
         return dto;
     }
 
+    public static Patient toEntity(PatientRequestDTO dto){
+        Patient patient = new Patient();
 
+        patient.setName(dto.getName());
+        patient.setEmail(dto.getEmail());
+        patient.setAddress(dto.getAddress());
+        patient.setDateOfBirth(java.time.LocalDate.parse(dto.getDateOfBirth()));
+        patient.setRegisteredDate(java.time.LocalDate.parse(dto.getRegisteredDate()));
+
+        return patient;
+    }
 
 }
