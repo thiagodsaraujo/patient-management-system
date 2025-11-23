@@ -3,6 +3,7 @@ package com.ojuara.patientservice.service;
 import com.ojuara.patientservice.dto.PatientRequestDTO;
 import com.ojuara.patientservice.dto.PatientResponseDTO;
 import com.ojuara.patientservice.exception.EmailAlreadyExistsException;
+import com.ojuara.patientservice.exception.PatientNotFoundException;
 import com.ojuara.patientservice.mapper.PatientMapper;
 import com.ojuara.patientservice.model.Patient;
 import com.ojuara.patientservice.repository.PatientRepository;
@@ -55,10 +56,24 @@ public class PatientService {
 
     }
 
-    public PatientResponseDTO updatePatiente(UUID id, PatientRequestDTO patientRequestDTO) {
+    public PatientResponseDTO updatePatient(UUID id, PatientRequestDTO patientRequestDTO) {
 
         Patient existingPatient = patientRepository.findById(id).orElseThrow(
                 () -> new PatientNotFoundException("Patient with id " + id + " not found."));
+
+        if (patientRepository.existsByEmail(patientRequestDTO.getEmail())) {
+            throw new EmailAlreadyExistsException(
+                    "Patient with email " + patientRequestDTO.getEmail() + " already exists.");
+        }
+
+        existingPatient.setName(patientRequestDTO.getName());
+        existingPatient.setEmail(patientRequestDTO.getEmail());
+        existingPatient.setAddress(patientRequestDTO.getAddress());
+        existingPatient.setDateOfBirth(java.time.LocalDate.parse(patientRequestDTO.getDateOfBirth()));
+
+        Patient updatedPatient = patientRepository.save(existingPatient);
+
+        return PatientMapper.toDTO(updatedPatient);
 
 
 
