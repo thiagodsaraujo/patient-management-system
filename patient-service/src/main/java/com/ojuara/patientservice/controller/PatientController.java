@@ -5,6 +5,9 @@ import com.ojuara.patientservice.dto.PatientResponseDTO;
 import com.ojuara.patientservice.dto.validators.CreatePatientValidationGroup;
 import com.ojuara.patientservice.mapper.PatientMapper;
 import com.ojuara.patientservice.service.PatientService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.groups.Default;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/patients") //http://localhost:8080/api/v1/patients
+@Tag(name = "Patient Controller", description = "API for managing patients")
 public class PatientController {
 
     private final PatientService patientService;
@@ -51,6 +55,11 @@ public class PatientController {
      * @return ResponseEntity contendo o paciente criado ou o existente e o status apropriado
      */
     @PostMapping("/create")
+    @Operation(summary = "Create Patient",
+            description = "Cria um novo paciente de forma idempotente. Retorna 201 se criado, 200 se já existia.")
+    @ApiResponse(responseCode = "201", description = "Paciente criado com sucesso")
+    @ApiResponse(responseCode = "200", description = "Paciente já existia")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos no payload")
     public ResponseEntity<PatientResponseDTO> createPatient(
             @Validated({Default.class, CreatePatientValidationGroup.class})
             @RequestBody PatientRequestDTO patientRequestDTO) {
@@ -71,16 +80,35 @@ public class PatientController {
     }
 
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<PatientResponseDTO> updatePatient(
-            @PathVariable("id") UUID id,
-            @Validated({Default.class}) @RequestBody PatientRequestDTO patientRequestDTO) {
+@PutMapping("/update/{id}")
+@io.swagger.v3.oas.annotations.Operation(
+        summary = "Update Patient",
+        description = "Atualiza os dados de um paciente existente. Retorna 200 com o paciente atualizado."
+)
+@io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "Payload com os campos do paciente a serem atualizados. Validações aplicadas pelo grupo `Default`.",
+        required = true
+)
+@io.swagger.v3.oas.annotations.responses.ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Paciente atualizado com sucesso"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados inválidos no payload"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Paciente não encontrado"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Erro interno")
+})
+public ResponseEntity<PatientResponseDTO> updatePatient(
+        @io.swagger.v3.oas.annotations.Parameter(description = "UUID do paciente a ser atualizado", required = true, example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+        @PathVariable("id") UUID id,
+        @Validated({Default.class}) @RequestBody PatientRequestDTO patientRequestDTO) {
 
-        PatientResponseDTO updatedPatient = patientService.updatePatient(id, patientRequestDTO);
+    // Delegar ao service para aplicar as alterações.
+    // O service é responsável por lançar exceções apropriadas (ex: not found, validação de negócio),
+    // que devem ser tratadas por um ControllerAdvice para retornar responses HTTP corretos.
+    PatientResponseDTO updatedPatient = patientService.updatePatient(id, patientRequestDTO);
 
-        return ResponseEntity.ok().body(updatedPatient);
+    // Retorna 200 OK com o recurso atualizado no corpo.
+    return ResponseEntity.ok().body(updatedPatient);
 
-    }
+}
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deletePatient(@PathVariable("id") UUID id) {
