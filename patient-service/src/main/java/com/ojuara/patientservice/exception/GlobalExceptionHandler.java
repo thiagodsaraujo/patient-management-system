@@ -35,6 +35,22 @@ public class GlobalExceptionHandler {
         Map<String, String> error = new HashMap<>();
         error.put("message", "Email already exists");
         return ResponseEntity.badRequest().body(error);
+
+    }
+
+    @ExceptionHandler(PatientNotFoundException.class)
+    public ResponseEntity<Map<String, String>>
+    handlePatientNotFoundException(
+            PatientNotFoundException ex) {
+
+        log.warn("Patient not found: {}.", ex.getMessage());
+
+        Map<String, String> error = new HashMap<>();
+        error.put("message", ex.getMessage());
+
+        // O status 404 Not Found é mais apropriado para recursos não encontrados
+        return ResponseEntity.status(404).body(error);
+
     }
 
 }

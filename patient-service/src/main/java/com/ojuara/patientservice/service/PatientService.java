@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,16 +44,23 @@ public class PatientService {
         if (patient.isPresent()) {
             return  PatientMapper.toDTO(patient.get());
         }
-
 //        // Cria novo paciente apenas se não existir (código nunca vai ser chamado)
 //        Pois se acima for true, já retorna o paciente existente
 //        if (patientRepository.existsByEmail(patientRequestDTO.getEmail())) {
 //            throw new EmailAlreadyExistsException(
 //                    "Patient with email " + patientRequestDTO.getEmail() + " already exists.");
 //        }
-
         Patient newPatient = patientRepository.save(PatientMapper.toEntity(patientRequestDTO));
         return PatientMapper.toDTO(newPatient);
+
+    }
+
+    public PatientResponseDTO updatePatiente(UUID id, PatientRequestDTO patientRequestDTO) {
+
+        Patient existingPatient = patientRepository.findById(id).orElseThrow(
+                () -> new PatientNotFoundException("Patient with id " + id + " not found."));
+
+
 
     }
 

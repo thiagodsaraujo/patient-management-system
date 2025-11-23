@@ -33,6 +33,11 @@ public class PatientController {
     @PostMapping("/create")
     public ResponseEntity<PatientResponseDTO> createPatient(@Valid @RequestBody PatientRequestDTO patientRequestDTO)
     {
+        // Esse post method é idempotente, ou seja,
+        // se o paciente já existir, retorna o existente, sem criar duplicado.
+        // Idempotência é uma propriedade importante em APIs RESTful, pois garante que múltiplas requisições
+        // com o mesmo efeito não causem efeitos colaterais adicionais no servidor.
+
         // Verifica se o paciente já existe pelo email
         boolean exists = patientService.patientExists(patientRequestDTO.getEmail());
 
@@ -40,6 +45,7 @@ public class PatientController {
 
         // Status 201 para criação, 200 para retorno de existente
         HttpStatus status = exists ? HttpStatus.OK : HttpStatus.CREATED;
+
 
         return ResponseEntity.status(status).body(createdPatient);
 
