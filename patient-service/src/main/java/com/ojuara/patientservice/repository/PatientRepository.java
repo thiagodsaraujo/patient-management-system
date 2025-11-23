@@ -14,5 +14,16 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
 
     Optional<Patient> findByEmail(String email);
 
+    /**
+     * Verifica se já existe outro paciente com o mesmo email, excluindo o paciente
+     * identificado por `id`. Usado para validar unicidade do email em operações de
+     * atualização (garante que nenhum outro registro possua o email informado).
+     *
+     * @param email email a verificar
+     * @param id id do paciente que deve ser ignorado na verificação
+     * @return `true` se existir outro paciente com o mesmo email, `false` caso contrário
+     */
+    boolean existsByEmailAndIdNot(String email, UUID id);
+
 
 }
